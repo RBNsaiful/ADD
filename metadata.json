@@ -1,0 +1,9 @@
+{
+  "name": "Remix: Remix: P",
+  "description": "",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}

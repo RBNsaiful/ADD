@@ -1,0 +1,67 @@
+
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    
+    "config": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
+    },
+
+    "users": {
+      ".read": "auth != null",
+      ".indexOn": ["totalEarned", "totalSpent", "totalDeposit", "balance"],
+      
+      "$uid": {
+        ".read": "auth != null && ($uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+        ".write": "auth != null && ($uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+        
+        "balance": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && (root.child('users').child(auth.uid).child('role').val() === 'admin' || !data.exists() || newData.val() >= data.val())"
+        },
+        "aiDailyUsage": {
+           ".write": "auth != null && $uid === auth.uid",
+           ".validate": "newData.hasChildren(['date', 'count'])"
+        },
+        "aiRequestCount": {
+           ".write": "auth != null && $uid === auth.uid",
+           ".validate": "newData.isNumber()"
+        }
+      }
+    },
+
+    "ai_chats": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+
+    "orders": {
+      ".indexOn": ["uid", "status"],
+      "$uid": {
+        ".read": "auth != null && ($uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+        ".write": "auth != null && ($uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin')"
+      },
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
+    },
+
+    "transactions": {
+      ".indexOn": ["userId", "status"],
+      "$uid": {
+        ".read": "auth != null && ($uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin')",
+        ".write": "auth != null && ($uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'admin')"
+      },
+      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'"
+    },
+
+    "notifications": {
+      ".read": "auth != null",
+      "$notifId": {
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'admin' || (data.exists() && data.child('targetUid').val() === auth.uid))"
+      },
+      ".indexOn": ["targetUid", "timestamp"]
+    }
+  }
+}
